@@ -1,0 +1,5 @@
+[
+  { "file": "data.json",        "label": "預設版本" },
+  { "file": "data-2026Q1.json", "label": "2026 Q1" },
+  { "file": "data-2026Q2.json", "label": "2026 Q2" }
+]

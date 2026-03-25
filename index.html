@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>台灣 AI 概念股追蹤</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="page">
+
+  <header class="header">
+    <div class="header-title">
+      <div class="title-eyebrow">TAIWAN · AI EQUITY TRACKER</div>
+      <h1 class="title-main">台灣 AI 概念股</h1>
+      <div class="title-sub">涵蓋晶片製造、ASIC、伺服器、封裝、光通訊、散熱、記憶體、載板共 8 大板塊</div>
+      <div id="data-version-badge"></div>
+    </div>
+    <div class="header-meta">
+      <div class="meta-date" id="meta-date"></div>
+      <div class="count-label" id="cnt-top" style="margin-top:4px">— 檔個股</div>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-icon">⌕</span>
+      <input class="search-box" id="q" type="search" placeholder="搜尋股名、代號、關鍵字…" autocomplete="off">
+    </div>
+    <div class="chip-row" id="chips"></div>
+  </div>
+
+  <div class="tbl-wrap">
+    <table id="tbl">
+      <thead>
+        <tr>
+          <th class="no-sort" style="width:36px"></th>
+          <th data-col="sector">板塊 <span class="sort-arr">↕</span></th>
+          <th data-col="name">股名 / 更新日期 <span class="sort-arr">↕</span></th>
+          <th data-col="price" class="num">現價(元) <span class="sort-arr">↕</span></th>
+          <th data-col="target" class="num">目標價(元) <span class="sort-arr">↕</span></th>
+          <th data-col="upside" class="num">潛在漲幅 <span class="sort-arr">↕</span></th>
+          <th data-col="pe" class="num">本益比(倍) <span class="sort-arr">↕</span></th>
+          <th data-col="eps">2026E EPS <span class="sort-arr">↕</span></th>
+          <th data-col="rating">評級 <span class="sort-arr">↕</span></th>
+          <th>核心優勢</th>
+          <th>主要風險</th>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <tr><td colspan="11"><div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-text">資料載入中…</div></div></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="footer-bar">
+    <div class="count-label" id="cnt">— / — 檔個股</div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--buy-fg)"></div>買進/首選</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--hold-fg)"></div>持有/觀察</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--warn-fg)"></div>謹慎</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--pe-lo)"></div>P/E ≤20</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--pe-md)"></div>P/E 21–35</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--pe-hi)"></div>P/E &gt;35</div>
+      <div class="legend-item" style="margin-left:8px;color:var(--text3);font-size:11px">點擊個股列查看完整詳情 ↗</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 版本切換浮動按鈕 -->
+<div class="switcher-fab" id="switcherBtn">
+  <span class="fab-icon">🗂</span>
+  <span class="fab-label" id="fabLabel">data.json</span>
+</div>
+
+<!-- ★ 自選清單浮動按鈕 -->
+<div class="watchlist-fab" id="watchlistFabBtn">
+  <span class="fab-icon">⭐</span>
+  <span class="fab-label">自選清單</span>
+  <span class="wl-count-badge" id="wlCountBadge" style="display:none">0</span>
+</div>
+
+<!-- 遮罩（版本切換 & 自選共用） -->
+<div class="switcher-backdrop" id="switcherBackdrop"></div>
+
+<!-- 版本切換面板 -->
+<div class="switcher-panel" id="switcherPanel">
+  <div class="switcher-header">
+    <span class="switcher-title">切換資料版本</span>
+    <button class="switcher-close" id="switcherClose">✕</button>
+  </div>
+  <div class="switcher-body">
+    <div class="version-list" id="versionList"></div>
+    <div class="switcher-divider"></div>
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="dropFileInput" accept=".json" style="display:none">
+      <div class="drop-icon">⊕</div>
+      <div class="drop-text">拖曳 <code>.json</code> 檔至此載入</div>
+      <div class="drop-sub">或點擊選擇檔案</div>
+    </div>
+    <div class="drop-error" id="dropError"></div>
+  </div>
+</div>
+
+<!-- ★ 自選清單面板 -->
+<div class="watchlist-panel" id="watchlistPanel">
+  <div class="watchlist-header">
+    <span class="watchlist-title">⭐ 自選清單</span>
+    <button class="watchlist-close" id="wlClose">✕</button>
+  </div>
+  <div class="watchlist-body" id="wlBody">
+    <div class="watchlist-empty">還沒有自選個股<br><span style="font-size:11px;color:var(--text3)">點擊表格中的 ＋ 按鈕加入</span></div>
+  </div>
+  <div class="watchlist-footer">
+    <button class="wl-export-btn primary" id="wlExportBtn">⬇ 匯出 JSON</button>
+  </div>
+</div>
+
+<!-- 個股詳情 Modal -->
+<div class="detail-backdrop" id="detailModalBackdrop"></div>
+<div class="detail-modal" id="detailModal">
+  <div class="detail-modal-header">
+    <span class="detail-modal-title">個股完整資料</span>
+    <button class="detail-modal-close" id="detailModalClose">✕</button>
+  </div>
+  <div id="detailContent"></div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
